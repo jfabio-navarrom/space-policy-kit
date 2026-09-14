@@ -6,7 +6,7 @@ software are out of scope. Each component was reviewed to identify what
 an attacker would achieve by controlling it, and each threat is mapped
 to a technique from the SPARTA matrix.
 
-The main finding is that link encryption stops none of the eight threats
+The main finding is that link encryption does not stop any of the eight threats
 listed below. All of them remain possible on a mission where the
 telecommand link is correctly encrypted and authenticated.
 
