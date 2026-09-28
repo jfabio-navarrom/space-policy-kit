@@ -1,0 +1,56 @@
+mission: vulpine-earth
+
+telecommand:
+  authentication: end_to_end
+  gsaas_holds_key_material: false
+
+keys:
+  storage: kms
+  rotation_days: 30
+  last_rotation: 2026-09-15
+  emergency_rotation_defined: true
+
+mission_planning:
+  flight_rule_validation: true
+  validation_bypass_possible: false
+  validated_constraints:
+    - orbital_visibility
+    - pointing
+    - power_margin
+    - storage_margin
+    - contact_window_capacity
+
+operations:
+  plan_approvals_required: 2
+  approver_can_be_author: false
+  approval_log_append_only: true
+
+customer_portal:
+  request_contract_validation: true
+  request_rate_limit: 100
+  product_access_isolation: true
+
+product_archive:
+  integrity_verification: true
+  deletion_requires_second_approval: true
+  access_log_append_only: true
+  catalogue_access_scope: per_customer
+
+telemetry:
+  reconciliation: true
+  reconciliation_sources:
+    - onboard_command_counter
+    - gsaas_contact_records
+  raw_telemetry_immutable: true
+  alert_destination: external
+
+source_control:
+  peer_review_required: true
+  signed_commits_required: true
+  dependency_scanning: true
+  secret_scanning: true
+
+deployment_pipeline:
+  artefact_signing: true
+  unsigned_deploy_blocked: true
+  can_access_keys: false
