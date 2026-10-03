@@ -33,7 +33,7 @@ the ground station provider has no access to them.
 **Mission posture field:** `telecommand_authentication` (end_to_end /
 provider_terminated / none), `gsaas_holds_key_material` (true / false)
 
-**Regulatory mapping:** NIS2 Art. 21(2)(j) — requires authentication measures within the entity. The text is written for human access, so the obligation applies by principle rather than by letter: this control authenticates a machine-to-machine command link. EU Space Act Title IV Chapter II (Arts. 74-95) — requires implementation of cryptography as part of the risk management regime for space infrastructure; as lex specialis, it displaces the NIS2 measures for in-scope space operators. Still in trilogue. CCSDS 355.0-B §2.2.4 — the Security Service for TC applies authentication to the Transfer Frame Data Field of a telecommand frame, which is the mechanism this control requires.
+**Regulatory mapping:** NIS2 Art. 21(2)(j) - requires authentication measures within the entity. The text is written for human access, so the obligation applies by principle rather than by letter: this control authenticates a machine-to-machine command link. EU Space Act Title IV Chapter II (Arts. 74-95) - requires implementation of cryptography as part of the risk management regime for space infrastructure; as lex specialis, it displaces the NIS2 measures for in-scope space operators. Still in trilogue. CCSDS 355.0-B §2.2.4 - the Security Service for TC applies authentication to the Transfer Frame Data Field of a telecommand frame, which is the mechanism this control requires.
 
 ---
 
