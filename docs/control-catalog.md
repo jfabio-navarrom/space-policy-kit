@@ -14,6 +14,28 @@ The `Mission posture field` entry of each control names the data a
 mission declares in its posture file. Those fields are the input the
 policy package evaluates.
 
+## A note on the regulatory mapping
+
+Three sources are used, and they do different things.
+
+NIS2 sets the general obligation. Article 21(2) lists the minimum risk
+management measures an essential or important entity must take, in broad
+terms: cryptography, access control, supply chain, incident handling.
+
+The EU Space Act, Title IV Chapter II (Articles 74-95), sets the
+space-specific resilience regime. For space operators that fall under
+points (8) and (11) of Annex I of NIS2, this chapter applies as lex
+specialis: those operators follow the Space Act resilience chapter
+instead of the NIS2 measures, to avoid duplicate requirements. So for an
+in-scope operator the two are not parallel obligations. The Space Act
+displaces NIS2 on the matters it covers. The proposal is still in
+trilogue and the text may change.
+
+Neither of them says how. CCSDS standards do, but only for what happens
+on the link. Where a control has no CCSDS reference, that is not an
+omission in this catalogue. It reflects that most of the ground segment
+risk sits outside what the space link standards cover.
+
 ---
 
 ## C-01 - End-to-end telecommand authentication
