@@ -14,6 +14,28 @@ The `Mission posture field` entry of each control names the data a
 mission declares in its posture file. Those fields are the input the
 policy package evaluates.
 
+## A note on the regulatory mapping
+
+Three sources are used, and they do different things.
+
+NIS2 sets the general obligation. Article 21(2) lists the minimum risk
+management measures an essential or important entity must take, in broad
+terms: cryptography, access control, supply chain, incident handling.
+
+The EU Space Act, Title IV Chapter II (Articles 74-95), sets the
+space-specific resilience regime. For space operators that fall under
+points (8) and (11) of Annex I of NIS2, this chapter applies as lex
+specialis: those operators follow the Space Act resilience chapter
+instead of the NIS2 measures, to avoid duplicate requirements. So for an
+in-scope operator the two are not parallel obligations. The Space Act
+displaces NIS2 on the matters it covers. The proposal is still in
+trilogue and the text may change.
+
+Neither of them says how. CCSDS standards do, but only for what happens
+on the link. Where a control has no CCSDS reference, that is not an
+omission in this catalogue. It reflects that most of the ground segment
+risk sits outside what the space link standards cover.
+
 ---
 
 ## C-01 - End-to-end telecommand authentication
@@ -33,7 +55,7 @@ the ground station provider has no access to them.
 **Mission posture field:** `telecommand_authentication` (end_to_end /
 provider_terminated / none), `gsaas_holds_key_material` (true / false)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(j) - requires authentication measures within the entity. The text is written for human access, so the obligation applies by principle rather than by letter: this control authenticates a machine-to-machine command link. EU Space Act Title IV Chapter II (Arts. 74-95) - requires implementation of cryptography as part of the risk management regime for space infrastructure; as lex specialis, it displaces the NIS2 measures for in-scope space operators. Still in trilogue. CCSDS 355.0-B §2.2.4 - the Security Service for TC applies authentication to the Transfer Frame Data Field of a telecommand frame, which is the mechanism this control requires.
 
 ---
 
@@ -54,7 +76,7 @@ a secret scan over the source repository and the deployed configuration.
 source_code), `key_rotation_days` (number), `last_key_rotation` (date),
 `emergency_rotation_defined` (true / false)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(h) - requires policies on cryptography and encryption. The text covers the obligation to have a cryptographic policy, but does not detail key lifecycle, rotation intervals or custody. EU Space Act Title IV Chapter II (Arts. 74-95) - requires implementation of cryptography within the space-specific risk management regime; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS 354.0-M-1 - recommended practice for symmetric key management, covering key lifecycle states, storage and operational lifetime limits. Note: this is a Magenta Book (recommended practice), not a normative Blue Book.
 
 ---
 
@@ -76,7 +98,7 @@ merge.
 `signed_commits_required` (true / false), `dependency_scanning` (true /
 false), `secret_scanning` (true / false)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(d) - requires supply chain security, including the relationships between an entity and its direct suppliers and service providers. EU Space Act Title IV Chapter II (Arts. 74-95) - covers this control through the general requirement for all-hazard risk management across the full mission lifecycle, including design and manufacturing. The chapter does not address software supply chain or development lifecycle specifically, so NIS2 remains the more precise reference here. Still in trilogue. CCSDS - no applicable standard. Ground segment software development sits outside the scope of the space link standards.
 
 ---
 
@@ -97,7 +119,7 @@ pipeline cannot read the key management system.
 `unsigned_deploy_blocked` (true / false), `pipeline_can_access_keys`
 (true / false)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(e) and (i) - Art. 21(2)(e) requires security in network and information systems acquisition, development and maintenance, ensuring deployment processes protect against unauthorized changes; Art. 21(2)(i) covers access control policies, supporting the least-privilege permissions required for the pipeline. EU Space Act Title IV Chapter II (Arts. 74-95) - requires strict access control and all-hazard risk management measures across the mission lifecycle; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS: No direct standard (deployment pipelines and infrastructure access controls are handled through general ground segment engineering practices).
 
 ---
 
@@ -119,7 +141,7 @@ entries from it.
 `approver_can_be_author` (true / false), `approval_log_append_only`
 (true / false)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(i) - requires policies on human resources security, access control policies, and asset management, which supports the requirement for separation of duties and dual-operator authorization. EU Space Act Title IV Chapter II (Arts. 74-95) - requires strict access control and all-hazard risk management measures across the mission lifecycle; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS: No direct standard (dual-operator authorization workflows occur inside the Mission Control Center rather than over the space link).
 
 ---
 
@@ -142,7 +164,7 @@ no role can approve a plan that failed validation.
 `validation_bypass_possible` (true / false), `validated_constraints`
 (list)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2: No direct mapping (NIS2 does not address operational pre-execution validation or flight rule checks, as this is a domain-specific prevention control that goes beyond general frameworks). EU Space Act Title IV Chapter II (Arts. 74-95) - requires all-hazard risk management measures across the mission lifecycle to ensure operational safety; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS: No direct standard (mission planning logic and flight rule verification are internal ground segment functions).
 
 ---
 
@@ -165,7 +187,7 @@ configuration on the API.
 `request_rate_limit` (number per period), `product_access_isolation`
 (true / false)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(i) - requires access control policies and asset management to ensure proper data isolation and user access limits. EU Space Act Title IV Chapter II (Arts. 74-95) - requires strict access control and all-hazard risk management measures across the mission lifecycle; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS: No direct standard (payload data distribution and customer portals reside in the ground data segment).
 
 ---
 
@@ -190,7 +212,7 @@ false), `deletion_requires_second_approval` (true / false),
 `access_log_append_only` (true / false), `catalogue_access_scope`
 (per_customer / full)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(c) and (i) - Art. 21(2)(c) covers data security and integrity measures, while Art. 21(2)(i) covers access control policies and secure asset management. EU Space Act Title IV Chapter II (Arts. 74-95) - requires strict access control and all-hazard risk management measures across the mission lifecycle; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS: No direct standard (archive management and product databases are handled via ground data systems).
 
 ---
 
@@ -213,4 +235,4 @@ administrators cannot modify the archived raw telemetry.
 `reconciliation_sources` (list), `raw_telemetry_immutable` (true /
 false), `alert_destination` (external / internal)
 
-**Regulatory mapping:** TBD
+**Regulatory mapping:** NIS2 Art. 21(2)(b) - relates to incident handling (as telemetry reconciliation serves to detect anomalies and ongoing discrepancies that require handling). EU Space Act Title IV Chapter II (Arts. 74-95) - requires all-hazard risk management measures across the mission lifecycle to support operational monitoring; applies as lex specialis for in-scope operators. Still in trilogue. CCSDS: No direct standard (reconciliation occurs strictly on the ground between independent system records, entirely outside the space link).

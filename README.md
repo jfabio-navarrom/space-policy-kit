@@ -1,4 +1,4 @@
-# OrbitGate
+# space-policy-kit
 
 Policy-as-code security baseline for commercial space ground segments.
 
@@ -9,50 +9,57 @@ fills a spreadsheet, the review board signs it, and the file is not
 opened again until the next audit. In between, the real configuration
 changes and nobody checks.
 
+The auditor should not be the one who finds out that the policy says 30
+days and the key has not been rotated in a year. By then the gap has
+been open for months.
+
 At the same time, the regulatory floor is moving up. The resilience
 chapter of the EU Space Act and the NIS2 Directive both apply to
 commercial operators that serve European customers. A control matrix
 that was correct six months ago does not satisfy either of them.
 
-OrbitGate writes the security requirements as executable policy. A
-mission describes its own posture, and the policy evaluates it.
+space-policy-kit writes the security requirements as executable policy.
+A mission describes its own posture, and the policy evaluates it.
 
 ## How it works
 
 1. The security posture of a mission is written in a YAML file. It
-   covers link protection, ground station provider arrangements,
-   operator access, product archive controls, and similar items.
+   covers link protection, key custody, operator approvals, planning
+   validation, product access, and the deployment path.
 2. A policy package written in Rego evaluates that file.
-3. Each finding is reported with a severity, the threat it relates to,
-   and the regulatory clause behind it.
+3. Each finding is reported with a severity, the control it belongs to,
+   and the threat behind it.
 
-Every rule in this repository starts from a threat. The threats are
-modelled against a reference architecture using MITRE SPARTA. Rules that
-exist only because a standard mentions them are not included.
+Every control in this repository starts from a threat. The threats are
+modelled against a reference architecture using MITRE SPARTA. Controls
+that exist only because a standard mentions them are not included.
 
 ## Usage
 
 Requires [Conftest](https://www.conftest.dev/).
 
-make check-baseline # mission with known gaps
-make check-remediated # same mission after remediation
+```
+conftest test missions/vulpine-earth-baseline.yaml
+conftest test missions/vulpine-earth-remediated.yaml
+```
 
+The first mission carries realistic gaps. The second is the same mission
+after remediation.
 
-Both targets call Conftest directly:
+Output on the baseline mission:
 
-conftest test missions/vulpine-earth-baseline.yaml --policy policy/
+```
+FAIL - [CRITICAL] C-01 | Ground station provider holds telecommand key material | Threat: T-01
+FAIL - [CRITICAL] C-02 | Key material stored in 'source_code', not in a key management system | Threat: T-01
+FAIL - [CRITICAL] C-04 | Deployment pipeline can access telecommand key material | Threat: T-07
+FAIL - [HIGH] C-02 | Key rotation overdue: 167 days elapsed, policy requires 30 | Threat: T-01
 
+13 tests, 9 passed, 0 warnings, 4 failures, 0 exceptions
+```
 
-Example output:
-
-FAIL - missions/vulpine-earth-baseline.yaml
-
-[CRITICAL] OG-003 Payload downlink encryption
-Component : X-band downlink
-Finding : Link layer encryption is not enabled
-Threat : Interception of imagery products in transit
-Reference : [pendiente semana 6]
-
+The last finding is the point of the project. The mission declares a
+30 day rotation policy and a last rotation date. Nothing in a control
+matrix compares those two values. The policy does, on every run.
 
 ## Reference mission
 
@@ -89,15 +96,19 @@ internal systems of the customers who buy the data.
 
 ## Repository layout
 
-docs/ Reference architecture, threat model, control catalogue
-policy/ Rego policy package
-missions/ Mission posture files
-tests/ Policy unit tests
-
+```
+docs/       Reference architecture, threat model, control catalogue
+policy/     Rego policy package
+missions/   Mission posture files
+```
 
 ## Status
 
-Architecture and threat modelling. The policy package is not written yet. This README describes the intended design.
+Nine controls are documented in `docs/control-catalog.md`. Five of them
+are implemented as policy: C-01, C-02, C-04, C-05 and C-06. The
+remaining four are documented but not yet executable.
+
+The regulatory mapping is in progress.
 
 ## Author
 
