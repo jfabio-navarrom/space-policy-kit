@@ -22,10 +22,15 @@ jobs:
       - name: Evaluate mission posture
         run: |
           conftest test missions/vulpine-earth-remediated.yaml --output json > result.json || true
+          echo "--- conftest result ---"
+          cat result.json
 
       - name: Publish control status
         run: |
+          test -s policy/controls.txt || { echo "::error::policy/controls.txt is missing or empty"; exit 1; }
+
           FAILED=$(jq -r '[.[] | .failures[]?.msg] | join(" ")' result.json)
+          ROWS=0
 
           {
             echo "## Control status — Vulpine-Earth"
@@ -34,8 +39,9 @@ jobs:
             echo ""
             echo "| Control | Name | Status |"
             echo "| --- | --- | --- |"
-            while IFS='|' read -r id name; do
+            while IFS='|' read -r id name || [ -n "$id" ]; do
               [ -z "$id" ] && continue
+              ROWS=$((ROWS+1))
               if echo "$FAILED" | grep -q "$id"; then
                 echo "| \`$id\` | $name | **FAIL** |"
               else
@@ -50,5 +56,7 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
+          echo "rows written: $ROWS"
           COUNT=$(jq '[.[] | .failures[]?] | length' result.json)
+          echo "findings: $COUNT"
           if [ "$COUNT" -gt 0 ]; then exit 1; fi
