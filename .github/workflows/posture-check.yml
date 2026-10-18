@@ -11,7 +11,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Conftest
         run: |
@@ -20,4 +20,35 @@ jobs:
           sudo mv conftest /usr/local/bin/
 
       - name: Evaluate mission posture
-        run: conftest test missions/vulpine-earth-remediated.yaml
+        run: |
+          conftest test missions/vulpine-earth-remediated.yaml --output json > result.json || true
+
+      - name: Publish control status
+        run: |
+          FAILED=$(jq -r '[.[] | .failures[]?.msg] | join(" ")' result.json)
+
+          {
+            echo "## Control status — Vulpine-Earth"
+            echo ""
+            echo "Evaluated on $(date -u '+%d %B %Y at %H:%M UTC')"
+            echo ""
+            echo "| Control | Name | Status |"
+            echo "| --- | --- | --- |"
+            while IFS='|' read -r id name; do
+              [ -z "$id" ] && continue
+              if echo "$FAILED" | grep -q "$id"; then
+                echo "| \`$id\` | $name | **FAIL** |"
+              else
+                echo "| \`$id\` | $name | pass |"
+              fi
+            done < policy/controls.txt
+            echo ""
+            if [ -n "$FAILED" ]; then
+              echo "### Findings"
+              echo ""
+              jq -r '.[] | .failures[]?.msg | "- " + .' result.json
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          COUNT=$(jq '[.[] | .failures[]?] | length' result.json)
+          if [ "$COUNT" -gt 0 ]; then exit 1; fi
