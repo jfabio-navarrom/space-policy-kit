@@ -7,7 +7,7 @@ telecommand:
 keys:
   storage: kms
   rotation_days: 30
-  last_rotation: 2026-09-15
+  last_rotation: 2026-10-10
   emergency_rotation_defined: true
 
 mission_planning:
