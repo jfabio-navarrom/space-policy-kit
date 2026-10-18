@@ -1,5 +1,5 @@
 # space-policy-kit
-
+[![posture-check](https://github.com/jfabio-navarrom/space-policy-kit/actions/workflows/posture-check.yml/badge.svg)](https://github.com/jfabio-navarrom/space-policy-kit/actions/workflows/posture-check.yml)
 Policy-as-code security baseline for commercial space ground segments.
 
 ## The problem
