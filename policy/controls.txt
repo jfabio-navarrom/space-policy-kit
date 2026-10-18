@@ -1,0 +1,5 @@
+C-01|End-to-end telecommand authentication
+C-02|Authentication key storage and rotation
+C-04|Deployment integrity and pipeline privilege
+C-05|Operator approval separation
+C-06|Flight rule validation of activity plans
