@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control status — space-policy-kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --paper: #FFFFFF;
+    --ink: #14171C;
+    --muted: #5A6068;
+    --rule: #E3E6EA;
+    --panel: #F7F8F9;
+    --accent: #A8361A;
+    --pass: #1A7F4B;
+    --pass-bg: #E8F5ED;
+    --fail: #B3261E;
+    --fail-bg: #FBEAE9;
+    --gap: #8A5A00;
+    --gap-bg: #FCF3E0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0F1216; --ink: #E7EAEE; --muted: #959DA6; --rule: #262C33;
+      --panel: #161B21; --accent: #E2714E;
+      --pass: #5FD08C; --pass-bg: #12301F;
+      --fail: #FF8578; --fail-bg: #351715;
+      --gap: #E0B154; --gap-bg: #2E2410;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0F1216; --ink: #E7EAEE; --muted: #959DA6; --rule: #262C33;
+    --panel: #161B21; --accent: #E2714E;
+    --pass: #5FD08C; --pass-bg: #12301F;
+    --fail: #FF8578; --fail-bg: #351715;
+    --gap: #E0B154; --gap-bg: #2E2410;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 16px 72px; }
+
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 18px; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.14em; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); letter-spacing: -0.02em; }
+  .sub { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+  .stamp { font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+    border-radius: 6px; overflow: hidden; margin: 28px 0 36px;
+  }
+  .stat { background: var(--panel); padding: 16px 18px; }
+  .stat .n { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  .stat .k {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-top: 5px;
+  }
+
+  .control {
+    border: 1px solid var(--rule); border-radius: 6px;
+    padding: 18px 20px; margin-bottom: 12px; background: var(--panel);
+  }
+  .chead { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+  .cid {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600;
+    padding: 2px 7px; border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--paper);
+  }
+  .cname { font-weight: 600; font-size: 16px; flex: 1 1 240px; min-width: 0; }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .b-pass { color: var(--pass); background: var(--pass-bg); }
+  .b-fail { color: var(--fail); background: var(--fail-bg); }
+  .b-src  { color: var(--muted); background: var(--paper); border: 1px solid var(--rule); }
+
+  .msgs { margin: 14px 0 0; padding: 0; list-style: none; }
+  .msgs li {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.55;
+    padding: 9px 12px; border-radius: 4px; margin-top: 7px;
+    border-left: 3px solid currentColor;
+  }
+  .m-fail { color: var(--fail); background: var(--fail-bg); }
+  .m-gap  { color: var(--gap);  background: var(--gap-bg); }
+  .msgs li span { color: var(--ink); }
+
+  .note {
+    margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--rule);
+    color: var(--muted); font-size: 14px;
+  }
+  .note strong { color: var(--ink); }
+  .note p { margin: 0 0 10px; }
+  a { color: var(--accent); }
+  #error { display: none; padding: 16px; border: 1px solid var(--fail); border-radius: 6px; color: var(--fail); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">SPACE POLICY KIT</p>
+    <h1>Control status</h1>
+    <p class="sub">
+      <span id="repo" class="stamp">—</span><br>
+      Last checked <span id="when" class="stamp">—</span>
+    </p>
+  </header>
+
+  <div id="error">Could not load <code>status.json</code>.</div>
+
+  <section class="summary" id="summary" aria-label="Summary"></section>
+
+  <section id="controls" aria-label="Controls"></section>
+
+  <div class="note">
+    <p><strong>Declared</strong> means the control was evaluated against a posture file a person wrote. It detects a
+    degraded declaration, not a degraded system.</p>
+    <p><strong>Observed</strong> means the control was evaluated against facts a collector read from a live system.
+    Only these are evidence.</p>
+    <p>A <strong>coverage gap</strong> is a fact the collector could not read. It is never counted as a pass.</p>
+  </div>
+
+</div>
+
+<script>
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function ago(iso) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
+  if (mins < 60) return mins + " min ago";
+  const h = Math.round(mins / 60);
+  if (h < 48) return h + (h === 1 ? " hour ago" : " hours ago");
+  return Math.round(h / 24) + " days ago";
+}
+
+function stat(n, k) {
+  return '<div class="stat"><div class="n">' + esc(n) + '</div><div class="k">' + esc(k) + '</div></div>';
+}
+
+fetch('status.json?t=' + Date.now())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => {
+    document.getElementById('repo').textContent = d.repo;
+    document.getElementById('when').textContent = ago(d.generated_at) + ' · ' + d.generated_at;
+    document.title = 'Control status (' + d.summary.failing + ' failing) — space-policy-kit';
+
+    const s = d.summary;
+    document.getElementById('summary').innerHTML =
+      stat(s.total - s.failing + ' / ' + s.total, 'controls passing') +
+      stat(s.failing, 'failing') +
+      stat(s.observed + ' / ' + s.total, 'observed, not declared') +
+      stat(s.coverage_gaps, 'coverage gaps');
+
+    document.getElementById('controls').innerHTML = d.controls.map(c => {
+      const ok = c.status === 'pass';
+      const msgs = c.findings.map(m => '<li class="m-fail"><span>' + esc(m) + '</span></li>')
+        .concat(c.coverage_gaps.map(m => '<li class="m-gap"><span>' + esc(m) + '</span></li>'))
+        .join('');
+      return '<article class="control">' +
+        '<div class="chead">' +
+          '<span class="cid">' + esc(c.id) + '</span>' +
+          '<span class="cname">' + esc(c.name) + '</span>' +
+          '<span class="badge b-src">' + esc(c.source) + '</span>' +
+          '<span class="badge ' + (ok ? 'b-pass' : 'b-fail') + '">' + (ok ? 'passing' : 'failing') + '</span>' +
+        '</div>' +
+        (msgs ? '<ul class="msgs">' + msgs + '</ul>' : '') +
+      '</article>';
+    }).join('');
+  })
+  .catch(() => { document.getElementById('error').style.display = 'block'; });
+</script>
+</body>
+</html>
