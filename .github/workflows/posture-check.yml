@@ -1,0 +1,23 @@
+name: posture-check
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Conftest
+        run: |
+          VERSION=0.70.1
+          curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${VERSION}/conftest_${VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+          sudo mv conftest /usr/local/bin/
+
+      - name: Evaluate mission posture
+        run: conftest test missions/vulpine-earth-remediated.yaml
