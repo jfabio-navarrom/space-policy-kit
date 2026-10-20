@@ -114,11 +114,14 @@ missions/   Mission posture files
 
 ## Status
 
-Nine controls are documented in `docs/control-catalog.md`. Five of them
-are implemented as policy: C-01, C-02, C-04, C-05 and C-06. The
-remaining four are documented but not yet executable.
+Nine controls are documented in `docs/control-catalog.md`, each mapped to
+NIS2, the EU Space Act resilience chapter and CCSDS where the standards
+reach. Six are implemented as policy; C-03 runs against the live GitHub API.
 
-The regulatory mapping is in progress.
+`state/observations.jsonl` is the evidence trail: one JSON object per
+control per run, appended daily and never rewritten. The SQLite index under
+`build/` is derived from it and committed nowhere, so the runner can be as
+ephemeral as it likes.
 
 ## Author
 
