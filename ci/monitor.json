@@ -1,0 +1,25 @@
+{
+  "targets": [
+    {
+      "name": "vulpine-earth",
+      "facts": "missions/vulpine-earth-remediated.yaml",
+      "namespace": "main",
+      "source": "declared"
+    },
+    {
+      "name": "space-policy-kit-repo",
+      "collector": "collectors/github-repo.sh",
+      "facts": "build/collected.json",
+      "namespace": "live",
+      "source": "observed"
+    }
+  ],
+  "controls": [
+    { "id": "C-01", "name": "End-to-end telecommand authentication",       "namespace": "main", "source": "declared" },
+    { "id": "C-02", "name": "Authentication key storage and rotation",     "namespace": "main", "source": "declared" },
+    { "id": "C-03", "name": "Source code and supply chain integrity",      "namespace": "live", "source": "observed" },
+    { "id": "C-04", "name": "Deployment integrity and pipeline privilege", "namespace": "main", "source": "declared" },
+    { "id": "C-05", "name": "Operator approval separation",                "namespace": "main", "source": "declared" },
+    { "id": "C-06", "name": "Flight rule validation of activity plans",    "namespace": "main", "source": "declared" }
+  ]
+}
