@@ -5,9 +5,6 @@ name: control-monitor
 # The durable store is state/observations.jsonl, committed on every run.
 # The SQLite index under build/ is derived and never committed: the runner
 # can be as ephemeral as it likes.
-#
-# The job status means "did the check run". A failing control is recorded
-# in the log, so a broken control and a broken monitor never share a signal.
 
 on:
   schedule:
@@ -58,7 +55,7 @@ jobs:
       - name: Build the status page
         run: python3 ci/status.py --site site/status.json
 
-        - name: Commit the evidence log
+      - name: Commit the evidence log
         run: |
           git config user.name "control-monitor"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
