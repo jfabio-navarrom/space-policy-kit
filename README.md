@@ -1,5 +1,9 @@
 # space-policy-kit
-[![posture-check](https://github.com/jfabio-navarrom/space-policy-kit/actions/workflows/posture-check.yml/badge.svg)](https://github.com/jfabio-navarrom/space-policy-kit/actions/workflows/posture-check.yml)
+[![control-monitor](https://github.com/jfabio-navarrom/space-policy-kit/actions/workflows/control-monitor.yml/badge.svg)](https://github.com/jfabio-navarrom/space-policy-kit/actions/workflows/control-monitor.yml)
+
+**[Live control status →](https://jfabio-navarrom.github.io/space-policy-kit/)**
+
+
 Policy-as-code security baseline for commercial space ground segments.
 
 ## The problem
