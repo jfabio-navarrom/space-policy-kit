@@ -1,0 +1,82 @@
+name: control-monitor
+
+# Scheduled control monitoring.
+#
+# The durable store is state/observations.jsonl, committed on every run.
+# The SQLite index under build/ is derived and never committed: the runner
+# can be as ephemeral as it likes.
+#
+# The job status means "did the check run". A failing control is recorded
+# in the log, so a broken control and a broken monitor never share a signal.
+
+on:
+  schedule:
+    - cron: '43 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: control-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Conftest
+        run: |
+          VERSION=0.70.1
+          curl -sSL "https://github.com/open-policy-agent/conftest/releases/download/v${VERSION}/conftest_${VERSION}_Linux_x86_64.tar.gz" | tar xz conftest
+          sudo mv conftest /usr/local/bin/
+
+      - name: Collect, evaluate and append
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 ci/orchestrate.py
+
+      - name: Current state
+        run: |
+          python3 ci/status.py
+          {
+            echo "## Control status"
+            echo ""
+            echo '```'
+            python3 ci/status.py
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the status page
+        run: python3 ci/status.py --site site/status.json
+
+      - name: Commit the evidence log
+        run: |
+          if git diff --quiet -- state/observations.jsonl; then
+            echo "nothing appended"
+            exit 0
+          fi
+          git config user.name "control-monitor"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/observations.jsonl
+          git commit -m "Observations $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git pull --rebase --autostash
+          git push
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy the status page
+        id: deployment
+        uses: actions/deploy-pages@v4
