@@ -89,14 +89,20 @@ Out of scope: spacecraft bus design, flight software internals, ground
 station physical infrastructure, launch, inter-satellite links, and the
 internal systems of the customers who buy the data.
 
-## What this is not
+## What this is and is not
 
-- It is not a scanner. It reads a declared posture. It does not touch a
-  live system.
-- It does not replace an audit or threat-led penetration testing.
-- It is not legal advice. The regulatory mapping is my own reading of
-  published texts. Some of those texts are still in trilogue and can
-  still change.
+Five controls are **declared**: evaluated against a posture file a person
+wrote. They detect a degraded declaration, not a degraded system.
+
+One control is **observed**: evaluated against facts a collector reads from
+the GitHub API. Only this kind is evidence.
+
+A fact the collector cannot read is reported as a **coverage gap** and is
+never counted as a pass.
+
+It is not a general scanner, it does not replace an audit or threat-led
+penetration testing, and it is not legal advice. The regulatory mapping is
+my own reading of published texts, some of which are still in trilogue.
 
 ## Repository layout
 
