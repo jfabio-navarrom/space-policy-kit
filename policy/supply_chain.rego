@@ -4,9 +4,9 @@ import rego.v1
 
 # C-03 — Source code and supply chain integrity
 #
-# This control is evaluated against facts collected from the GitHub API,
-# not against a declared posture. A fact the collector could not observe
-# is reported as a warning, never as a pass.
+# Evaluated against facts collected from the GitHub API, not against a
+# declared posture. A fact the collector could not observe is reported as
+# a warning, never as a pass.
 
 sc := input.source_control
 
@@ -15,7 +15,7 @@ sc := input.source_control
 deny contains msg if {
 	is_number(sc.commits_unsigned)
 	sc.commits_unsigned > 0
-		msg := sprintf("[HIGH] C-03 | %d of %d human commits in the last %d days are not signed (%d monitor commits excluded) | Threat: T-08", [sc.commits_unsigned, sc.commits_sampled, object.get(sc, "window_days", 0), object.get(sc, "commits_excluded_bot", 0)])
+	msg := sprintf("[HIGH] C-03 | %d of %d human commits in the last %d days are not signed (%d monitor commits excluded) | Threat: T-08", [sc.commits_unsigned, sc.commits_sampled, object.get(sc, "window_days", 0), object.get(sc, "commits_excluded_bot", 0)])
 }
 
 deny contains msg if {
@@ -35,7 +35,7 @@ deny contains msg if {
 	msg := sprintf("[HIGH] C-03 | %d open Dependabot alerts on the repository | Threat: T-08", [sc.dependabot_alerts_open])
 }
 
-# --- coverage gaps: observed nothing, which is not the same as passing ----
+# --- coverage gaps: observing nothing is not the same as passing ----------
 
 warn contains msg if {
 	sc.secret_scanning == "unknown"
@@ -49,5 +49,15 @@ warn contains msg if {
 
 warn contains msg if {
 	sc.merges_sampled == 0
-	msg := "[COVERAGE] C-03 | No merged pull requests in the sample window, so peer review could not be observed"
+	msg := "[COVERAGE] C-03 | No merged pull requests in the window, so peer review could not be observed"
+}
+
+warn contains msg if {
+	not is_number(sc.commits_sampled)
+	msg := "[COVERAGE] C-03 | Commit signing could not be observed: the collector returned no commit count"
+}
+
+warn contains msg if {
+	sc.commits_sampled == 0
+	msg := sprintf("[COVERAGE] C-03 | No human commits found in the last %d days, so commit signing could not be observed", [object.get(sc, "window_days", 0)])
 }
