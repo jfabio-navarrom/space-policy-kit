@@ -66,6 +66,7 @@ cat <<EOF
   "source_control": {
     "commits_sampled": $COMMITS_SAMPLED,
     "commits_unsigned": $COMMITS_UNSIGNED,
+	"commits_excluded_bot": $COMMITS_EXCLUDED,
     "merges_sampled": $MERGES_SAMPLED,
     "merges_unreviewed": $MERGES_UNREVIEWED,
     "secret_scanning": "$SECRET_SCANNING",
