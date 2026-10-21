@@ -20,9 +20,19 @@ if [ -z "$REPO" ]; then
 fi
 
 # --- commits: is each one cryptographically signed? ----------------------
-COMMITS=$(gh api "repos/$REPO/commits?per_page=$SAMPLE" 2>/dev/null || echo '[]')
+#
+# The monitor's own commits are excluded from the sample. They are signed by
+# the platform, so leaving them in would let the monitor dilute the very
+# measurement it exists to take: one bot commit a day quietly pushes the
+# human ones out of the window until the control passes on its own.
+# Over-fetch so that excluding them still leaves a full sample.
+RAW=$(gh api "repos/$REPO/commits?per_page=100" 2>/dev/null || echo '[]')
+COMMITS=$(echo "$RAW" | jq --arg bot "$BOT_NAME" \
+  '[.[] | select(.commit.author.name != $bot)] | .[0:'"$SAMPLE"']' 2>/dev/null || echo '[]')
 COMMITS_SAMPLED=$(echo "$COMMITS" | jq 'length' 2>/dev/null || echo 0)
 COMMITS_UNSIGNED=$(echo "$COMMITS" | jq '[.[] | select(.commit.verification.verified != true)] | length' 2>/dev/null || echo 0)
+COMMITS_EXCLUDED=$(echo "$RAW" | jq --arg bot "$BOT_NAME" \
+  '[.[] | select(.commit.author.name == $bot)] | length' 2>/dev/null || echo 0)
 
 # --- merges: approved by someone other than the author? ------------------
 PULLS=$(gh api "repos/$REPO/pulls?state=closed&per_page=$SAMPLE" 2>/dev/null || echo '[]')
