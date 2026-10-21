@@ -21,14 +21,17 @@ fi
 
 # --- commits: is each one cryptographically signed? ----------------------
 #
-# The monitor's own commits are excluded from the sample. They are signed by
-# the platform, so leaving them in would let the monitor dilute the very
-# measurement it exists to take: one bot commit a day quietly pushes the
-# human ones out of the window until the control passes on its own.
-# Over-fetch so that excluding them still leaves a full sample.
-RAW=$(gh api "repos/$REPO/commits?per_page=100" 2>/dev/null || echo '[]')
+# The window is a period, not a count. A count window silently shrinks when
+# activity spikes: twenty commits can be one afternoon or six months, and
+# "the last twenty are signed" then says nothing about the month.
+#
+# The monitor's own commits are excluded. They are signed by the platform,
+# so leaving them in would let the monitor dilute the very measurement it
+# exists to take.
+SINCE=$(date -u -d "$WINDOW_DAYS days ago" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null)
+RAW=$(gh api "repos/$REPO/commits?since=$SINCE&per_page=100" 2>/dev/null || echo '[]')
 COMMITS=$(echo "$RAW" | jq --arg bot "$BOT_NAME" \
-  '[.[] | select(.commit.author.name != $bot)] | .[0:'"$SAMPLE"']' 2>/dev/null || echo '[]')
+  '[.[] | select(.commit.author.name != $bot)]' 2>/dev/null || echo '[]')
 COMMITS_SAMPLED=$(echo "$COMMITS" | jq 'length' 2>/dev/null || echo 0)
 COMMITS_UNSIGNED=$(echo "$COMMITS" | jq '[.[] | select(.commit.verification.verified != true)] | length' 2>/dev/null || echo 0)
 COMMITS_EXCLUDED=$(echo "$RAW" | jq --arg bot "$BOT_NAME" \
