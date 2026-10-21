@@ -3,16 +3,17 @@
 # Collects the real state of a GitHub repository through the API and writes
 # it as a mission posture file.
 #
-# A fact the collector cannot observe is recorded as "unknown", never as a
-# pass. The policy reports those as coverage warnings, so a missing
-# permission can never look like compliance.
+# A fact the collector cannot observe is recorded as "unknown" or as an
+# empty sample, never as a pass. The policy reports those as coverage
+# warnings, so a missing permission can never look like compliance.
 #
 # Usage: collectors/github-repo.sh [owner/repo] > missions/live.json
 
 set -uo pipefail
 
 REPO="${1:-${GITHUB_REPOSITORY:-}}"
-SAMPLE=20
+WINDOW_DAYS=30
+BOT_NAME="control-monitor"
 
 if [ -z "$REPO" ]; then
 	echo "usage: $0 owner/repo" >&2
@@ -38,7 +39,7 @@ COMMITS_EXCLUDED=$(echo "$RAW" | jq --arg bot "$BOT_NAME" \
   '[.[] | select(.commit.author.name == $bot)] | length' 2>/dev/null || echo 0)
 
 # --- merges: approved by someone other than the author? ------------------
-PULLS=$(gh api "repos/$REPO/pulls?state=closed&per_page=$SAMPLE" 2>/dev/null || echo '[]')
+PULLS=$(gh api "repos/$REPO/pulls?state=closed&per_page=30" 2>/dev/null || echo '[]')
 MERGES_SAMPLED=0
 MERGES_UNREVIEWED=0
 
@@ -67,9 +68,10 @@ cat <<EOF
   "collected_at": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
   "source": "github-api:$REPO",
   "source_control": {
+    "window_days": $WINDOW_DAYS,
     "commits_sampled": $COMMITS_SAMPLED,
     "commits_unsigned": $COMMITS_UNSIGNED,
-	"commits_excluded_bot": $COMMITS_EXCLUDED,
+    "commits_excluded_bot": $COMMITS_EXCLUDED,
     "merges_sampled": $MERGES_SAMPLED,
     "merges_unreviewed": $MERGES_UNREVIEWED,
     "secret_scanning": "$SECRET_SCANNING",
