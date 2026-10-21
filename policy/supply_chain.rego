@@ -15,7 +15,7 @@ sc := input.source_control
 deny contains msg if {
 	is_number(sc.commits_unsigned)
 	sc.commits_unsigned > 0
-	msg := sprintf("[HIGH] C-03 | %d of the last %d human commits on the default branch are not signed (%d monitor commits excluded from the sample) | Threat: T-08", [sc.commits_unsigned, sc.commits_sampled, object.get(sc, "commits_excluded_bot", 0)])
+		msg := sprintf("[HIGH] C-03 | %d of %d human commits in the last %d days are not signed (%d monitor commits excluded) | Threat: T-08", [sc.commits_unsigned, sc.commits_sampled, object.get(sc, "window_days", 0), object.get(sc, "commits_excluded_bot", 0)])
 }
 
 deny contains msg if {
