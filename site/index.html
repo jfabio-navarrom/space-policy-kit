@@ -87,6 +87,7 @@
   }
   .b-pass { color: var(--pass); background: var(--pass-bg); }
   .b-fail { color: var(--fail); background: var(--fail-bg); }
+  .b-unk  { color: var(--gap);  background: var(--gap-bg); }
   .b-src  { color: var(--muted); background: var(--paper); border: 1px solid var(--rule); }
 
   .held { margin: 9px 0 0; font-family: 'IBM Plex Mono', monospace;
@@ -135,6 +136,8 @@
     <p><strong>Observed</strong> means the control was evaluated against facts a collector read from a live system.
     Only these are evidence.</p>
     <p>A <strong>coverage gap</strong> is a fact the collector could not read. It is never counted as a pass.</p>
+    <p><strong>Not measured</strong> is a control whose facts could not be read at all. It is reported on its own,
+    because calling it a failure would be as wrong as calling it a pass.</p>
   </div>
 
 </div>
@@ -161,31 +164,42 @@ fetch('status.json?t=' + Date.now())
     document.getElementById('when').textContent = ago(d.generated_at) + ' · ' + d.generated_at;
     document.title = 'Control status (' + d.summary.failing + ' failing) — space-policy-kit';
 
+    // A control is passing only when it was measured and nothing failed.
+    // `unknown` is counted on its own, never folded into either side.
     const s = d.summary;
+    const passing = s.total - s.failing - s.unknown;
     document.getElementById('summary').innerHTML =
-      stat(s.total - s.failing + ' / ' + s.total, 'controls passing') +
+      stat(passing + ' / ' + s.total, 'controls passing') +
       stat(s.failing, 'failing') +
+      stat(s.unknown, 'not measured') +
       stat(s.observed + ' / ' + s.total, 'observed, not declared') +
       stat(s.coverage_gaps, 'coverage gaps');
 
+    // Three states, kept apart on purpose. A control the collector could
+    // not read is not failing and it is not passing: it was not measured.
+    const BADGE = {
+      pass:    { cls: 'b-pass', label: 'passing',      verb: 'Passing ' },
+      fail:    { cls: 'b-fail', label: 'failing',      verb: 'Failing ' },
+      unknown: { cls: 'b-unk',  label: 'not measured', verb: 'Not measured ' },
+    };
+
     document.getElementById('controls').innerHTML = d.controls.map(c => {
-      const ok = c.status === 'pass';
+      const b = BADGE[c.status] || BADGE.fail;
       const msgs = c.findings.map(m => '<li class="m-fail"><span>' + esc(m) + '</span></li>')
         .concat(c.coverage_gaps.map(m => '<li class="m-gap"><span>' + esc(m) + '</span></li>'))
         .join('');
-      const d = c.days_in_state;
-      const held = d === 0 ? 'since today' :
-                   d === 1 ? 'for 1 day' : 'for ' + d + ' days';
+      const days = c.days_in_state;
+      const held = days === 0 ? 'as of today' :
+                   days === 1 ? 'for 1 day' : 'for ' + days + ' days';
       const stamp = String(c.since || '').replace('T', ' ').replace('Z', ' UTC');
       return '<article class="control">' +
         '<div class="chead">' +
           '<span class="cid">' + esc(c.id) + '</span>' +
           '<span class="cname">' + esc(c.name) + '</span>' +
           '<span class="badge b-src">' + esc(c.source) + '</span>' +
-          '<span class="badge ' + (ok ? 'b-pass' : 'b-fail') + '">' + (ok ? 'passing' : 'failing') + '</span>' +
+          '<span class="badge ' + b.cls + '">' + b.label + '</span>' +
         '</div>' +
-        '<p class="held">' + (ok ? 'Passing ' : 'Failing ') + esc(held) +
-          ' · ' + esc(stamp) + '</p>' +
+        '<p class="held">' + b.verb + esc(held) + ' · ' + esc(stamp) + '</p>' +
         (msgs ? '<ul class="msgs">' + msgs + '</ul>' : '') +
       '</article>';
     }).join('');
