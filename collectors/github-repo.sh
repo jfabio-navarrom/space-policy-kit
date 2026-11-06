@@ -58,9 +58,15 @@ SECRET_SCANNING=$(gh api "repos/$REPO" 2>/dev/null |
 [ -z "$SECRET_SCANNING" ] && SECRET_SCANNING="unknown"
 
 # --- dependabot alerts ---------------------------------------------------
-ALERTS=$(gh api "repos/$REPO/dependabot/alerts?state=open&per_page=100" 2>/dev/null |
-	jq 'length' 2>/dev/null)
-[ -z "$ALERTS" ] && ALERTS='"unknown"'
+# gh prints the error body on stdout when the API refuses, and `jq length`
+# counts an object's keys, so a 403 would be read as that many alerts.
+# Only an array is a real answer; anything else means not observed.
+ALERTS_RAW=$(gh api "repos/$REPO/dependabot/alerts?state=open&per_page=100" 2>/dev/null)
+if echo "$ALERTS_RAW" | jq -e 'type == "array"' >/dev/null 2>&1; then
+	ALERTS=$(echo "$ALERTS_RAW" | jq 'length')
+else
+	ALERTS='"unknown"'
+fi
 
 cat <<EOF
 {
